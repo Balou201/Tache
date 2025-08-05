@@ -1,138 +1,117 @@
-// On sélectionne les éléments HTML dont on a besoin
-const taskForm = document.getElementById('task-form');
-const taskInput = document.getElementById('task-input');
-const taskList = document.getElementById('task-list');
-
-// On récupère les tâches sauvegardées ou on crée une liste vide
-let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-
-// Variable pour stocker l'élément en cours de glissement
-let draggedItem = null;
-
-// Fonction pour sauvegarder les tâches dans le stockage local du navigateur
-function saveTasks() {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
 }
 
-// Fonction pour afficher les tâches
-function renderTasks() {
-    taskList.innerHTML = '';
-    tasks.forEach((task, index) => {
-        const li = document.createElement('li');
-        li.classList.toggle('completed', task.completed);
-        li.draggable = true; // Rend l'élément glissable
-
-        li.addEventListener('dragstart', () => {
-            draggedItem = li;
-            setTimeout(() => li.classList.add('dragging'), 0);
-        });
-
-        li.addEventListener('dragend', () => {
-            li.classList.remove('dragging');
-            draggedItem = null;
-        });
-
-        li.addEventListener('dragover', (e) => {
-            e.preventDefault(); // Permet le "drop"
-        });
-
-        li.addEventListener('drop', (e) => {
-            e.preventDefault();
-            if (draggedItem && draggedItem !== li) {
-                const draggedIndex = [...taskList.children].indexOf(draggedItem);
-                const droppedIndex = [...taskList.children].indexOf(li);
-
-                // Réorganiser le tableau de tâches
-                const [movedTask] = tasks.splice(draggedIndex, 1);
-                tasks.splice(droppedIndex, 0, movedTask);
-
-                saveTasks();
-                renderTasks();
-            }
-        });
-
-        const taskText = document.createElement('span');
-        taskText.classList.add('task-text');
-
-        if (task.text.startsWith('http://') || task.text.startsWith('https://')) {
-            const link = document.createElement('a');
-            link.href = task.text;
-            link.textContent = task.text;
-            link.target = "_blank";
-            taskText.appendChild(link);
-        } else {
-            taskText.textContent = task.text;
-        }
-
-        const actions = document.createElement('div');
-        actions.classList.add('task-actions');
-
-        const completeBtn = document.createElement('button');
-        completeBtn.textContent = '✅';
-        completeBtn.onclick = () => toggleComplete(index);
-
-        const editBtn = document.createElement('button');
-        editBtn.textContent = '✏️';
-        editBtn.classList.add('edit-btn');
-        editBtn.onclick = () => editTask(index);
-
-        const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = '❌';
-        deleteBtn.classList.add('delete-btn');
-        deleteBtn.onclick = () => deleteTask(index);
-
-        actions.appendChild(completeBtn);
-        actions.appendChild(editBtn);
-        actions.appendChild(deleteBtn);
-
-        li.appendChild(taskText);
-        li.appendChild(actions);
-
-        taskList.appendChild(li);
-    });
+.container {
+    background: #fff;
+    padding: 20px 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
 }
 
-// Gère la soumission du formulaire pour ajouter une nouvelle tâche
-taskForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (taskInput.value.trim() === '') {
-        return;
-    }
-    const newTask = {
-        text: taskInput.value,
-        completed: false
-    };
-    tasks.push(newTask);
-    taskInput.value = '';
-    saveTasks();
-    renderTasks();
-});
-
-// Marque une tâche comme terminée ou non
-function toggleComplete(index) {
-    tasks[index].completed = !tasks[index].completed;
-    saveTasks();
-    renderTasks();
+h1 {
+    text-align: center;
+    color: #555;
 }
 
-// Permet de modifier une tâche
-function editTask(index) {
-    const newText = prompt('Modifier la tâche :', tasks[index].text);
-    if (newText !== null && newText.trim() !== '') {
-        tasks[index].text = newText;
-        saveTasks();
-        renderTasks();
-    }
+#task-form {
+    display: flex;
+    margin-bottom: 20px;
 }
 
-// Supprime une tâche
-function deleteTask(index) {
-    if (confirm('Voulez-vous vraiment supprimer cette tâche ?')) {
-        tasks.splice(index, 1);
-        saveTasks();
-        renderTasks();
-    }
+#task-input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
 }
 
-// Affiche les tâches au chargement de la page
-document.addEventListener('DOMContentLoaded', renderTasks);
+#task-form button {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+#task-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+#task-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: #f9f9f9;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.3s ease;
+    cursor: grab;
+}
+
+#task-list li:last-child {
+    border-bottom: none;
+}
+
+#task-list li.completed {
+    text-decoration: line-through;
+    color: #aaa;
+    background-color: #e9e9e9;
+}
+
+#task-list li:hover {
+    background-color: #e0e0e0;
+}
+
+.task-text {
+    flex-grow: 1;
+    word-break: break-word;
+    display: flex;
+    align-items: center;
+}
+
+.task-actions button, .task-link-button {
+    margin-left: 5px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.task-actions .delete-btn {
+    color: #e74c3c;
+}
+
+.task-actions .edit-btn {
+    color: #f39c12;
+}
+
+.dragging {
+    opacity: 0.5;
+    transform: rotate(2deg);
+}
+
+/* Style pour le bouton de lien */
+.task-link-button {
+    padding: 5px 10px;
+    font-size: 14px;
+    background-color: #28a745;
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-block;
+    margin-left: 10px;
+}
