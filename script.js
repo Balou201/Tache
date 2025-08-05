@@ -60,8 +60,9 @@ function renderTasks() {
             linkButton.textContent = 'Ouvrir le lien';
             linkButton.target = "_blank"; // Ouvre le lien dans un nouvel onglet
             linkButton.classList.add('task-link-button');
-            
-            taskText.textContent = 'Lien ajouté'; // Texte affiché à côté du bouton
+
+            const simpleText = document.createTextNode('Lien ajouté : ');
+            taskText.appendChild(simpleText);
             taskText.appendChild(linkButton);
         } else {
             taskText.textContent = task.text;
