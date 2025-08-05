@@ -3,9 +3,13 @@ const taskForm = document.getElementById('task-form');
 const taskInput = document.getElementById('task-input');
 const taskList = document.getElementById('task-list');
 
+// On récupère les tâches sauvegardées ou on crée une liste vide
 let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 
-// Fonction pour sauvegarder les tâches dans le stockage local
+// Variable pour stocker l'élément en cours de glissement
+let draggedItem = null;
+
+// Fonction pour sauvegarder les tâches dans le stockage local du navigateur
 function saveTasks() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
 }
@@ -16,16 +20,45 @@ function renderTasks() {
     tasks.forEach((task, index) => {
         const li = document.createElement('li');
         li.classList.toggle('completed', task.completed);
+        li.draggable = true; // Rend l'élément glissable
+
+        li.addEventListener('dragstart', () => {
+            draggedItem = li;
+            setTimeout(() => li.classList.add('dragging'), 0);
+        });
+
+        li.addEventListener('dragend', () => {
+            li.classList.remove('dragging');
+            draggedItem = null;
+        });
+
+        li.addEventListener('dragover', (e) => {
+            e.preventDefault(); // Permet le "drop"
+        });
+
+        li.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (draggedItem && draggedItem !== li) {
+                const draggedIndex = [...taskList.children].indexOf(draggedItem);
+                const droppedIndex = [...taskList.children].indexOf(li);
+
+                // Réorganiser le tableau de tâches
+                const [movedTask] = tasks.splice(draggedIndex, 1);
+                tasks.splice(droppedIndex, 0, movedTask);
+
+                saveTasks();
+                renderTasks();
+            }
+        });
 
         const taskText = document.createElement('span');
         taskText.classList.add('task-text');
 
-        // Vérifie si le texte est un lien
         if (task.text.startsWith('http://') || task.text.startsWith('https://')) {
             const link = document.createElement('a');
             link.href = task.text;
             link.textContent = task.text;
-            link.target = "_blank"; // Ouvre le lien dans un nouvel onglet
+            link.target = "_blank";
             taskText.appendChild(link);
         } else {
             taskText.textContent = task.text;
@@ -59,9 +92,12 @@ function renderTasks() {
     });
 }
 
-// Gère la soumission du formulaire
+// Gère la soumission du formulaire pour ajouter une nouvelle tâche
 taskForm.addEventListener('submit', (e) => {
     e.preventDefault();
+    if (taskInput.value.trim() === '') {
+        return;
+    }
     const newTask = {
         text: taskInput.value,
         completed: false
@@ -82,7 +118,7 @@ function toggleComplete(index) {
 // Permet de modifier une tâche
 function editTask(index) {
     const newText = prompt('Modifier la tâche :', tasks[index].text);
-    if (newText !== null && newText !== '') {
+    if (newText !== null && newText.trim() !== '') {
         tasks[index].text = newText;
         saveTasks();
         renderTasks();
@@ -91,9 +127,11 @@ function editTask(index) {
 
 // Supprime une tâche
 function deleteTask(index) {
-    tasks.splice(index, 1);
-    saveTasks();
-    renderTasks();
+    if (confirm('Voulez-vous vraiment supprimer cette tâche ?')) {
+        tasks.splice(index, 1);
+        saveTasks();
+        renderTasks();
+    }
 }
 
 // Affiche les tâches au chargement de la page
