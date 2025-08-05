@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ma Liste de Tâches</title>
-    </head>
+    <title>Mon Agenda de Tâches</title>
+    <link rel="stylesheet" href="style.css">
+</head>
 <body>
-    <div id="app">
+    <div class="container">
         <h1>Mes Tâches Quotidiennes</h1>
         <form id="task-form">
-            <input type="text" id="task-input" placeholder="Ajouter une nouvelle tâche..." required>
+            <input type="text" id="task-input" placeholder="Ajouter une nouvelle tâche ou un lien (ex: https://...)">
             <button type="submit">Ajouter</button>
         </form>
         <ul id="task-list">
             </ul>
     </div>
-    </body>
+    <script src="script.js"></script>
+</body>
 </html>
