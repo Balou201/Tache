@@ -59,7 +59,7 @@ h1 {
     background: #f9f9f9;
     border-bottom: 1px solid #eee;
     transition: background-color 0.3s ease;
-    cursor: grab; /* Ajout pour indiquer que la tâche est déplaçable */
+    cursor: grab;
 }
 
 #task-list li:last-child {
@@ -79,14 +79,11 @@ h1 {
 .task-text {
     flex-grow: 1;
     word-break: break-word;
+    display: flex;
+    align-items: center;
 }
 
-.task-text a {
-    color: #007bff;
-    text-decoration: none;
-}
-
-.task-actions button {
+.task-actions button, .task-link-button {
     margin-left: 5px;
     border: none;
     background: none;
@@ -104,5 +101,17 @@ h1 {
 
 .dragging {
     opacity: 0.5;
-    transform: rotate(2deg); /* Ajout pour un petit effet visuel */
+    transform: rotate(2deg);
+}
+
+/* Style pour le bouton de lien */
+.task-link-button {
+    padding: 5px 10px;
+    font-size: 14px;
+    background-color: #28a745;
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-block;
+    margin-left: 10px;
 }
