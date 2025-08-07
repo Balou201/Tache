@@ -1,209 +1,318 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Mes Tâches avec Liens et Réinitialisation</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 600px;
-      margin: 40px auto;
-      padding: 20px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-
-    h1 {
-      text-align: center;
-    }
-
-    input[type="text"],
-    input[type="url"],
-    input[type="number"] {
-      padding: 8px;
-      margin-top: 5px;
-      margin-bottom: 10px;
-    }
-
-    input[type="text"] {
-      width: 45%;
-    }
-
-    input[type="url"] {
-      width: 40%;
-    }
-
-    input[type="number"] {
-      width: 100px;
-    }
-
-    button {
-      padding: 8px 10px;
-      margin-top: 10px;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    li {
-      margin: 12px 0;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .completed span {
-      text-decoration: line-through;
-      color: gray;
-    }
-
-    .task-info {
-      flex-grow: 1;
-      margin-left: 10px;
-    }
-
-    .task-actions {
-      display: flex;
-      gap: 5px;
-    }
-
-    a {
-      margin-left: 10px;
-      font-size: 0.9em;
-    }
-
-    .hidden {
-      display: none;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Tâches</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2.2em;
+            margin-bottom: 25px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .input-group input {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .reset-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9em;
+            color: #555;
+        }
+        .reset-control input[type="number"] {
+            width: 80px;
+            padding: 8px;
+            text-align: center;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            flex-grow: 1;
+            min-width: 150px;
+        }
+        #addTaskBtn {
+            background-color: #3498db;
+            color: white;
+        }
+        #addTaskBtn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        #toggleHideBtn {
+            background-color: #95a5a6;
+            color: white;
+        }
+        #toggleHideBtn:hover {
+            background-color: #7f8c8d;
+            transform: translateY(-2px);
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        li {
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s;
+        }
+        li:last-child {
+            margin-bottom: 0;
+        }
+        .task-content {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .task-content span {
+            flex-grow: 1;
+        }
+        .task-content a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .task-content a:hover {
+            text-decoration: underline;
+        }
+        .task-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .task-actions button {
+            background: none;
+            border: none;
+            font-size: 1.2em;
+            cursor: pointer;
+            padding: 5px;
+        }
+        .task-actions button:hover {
+            transform: scale(1.1);
+        }
+        input[type="checkbox"] {
+            transform: scale(1.4);
+            margin-right: 15px;
+            cursor: pointer;
+        }
+        .completed .task-content span {
+            text-decoration: line-through;
+            color: #7f8c8d;
+        }
+        .completed {
+            background-color: #e0e6e9;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-  <h1>📝 Mes Tâches</h1>
+    <div class="container">
+        <h1>📝 Mes Tâches</h1>
 
-  <div>
-    <input type="text" id="taskInput" placeholder="Nom de la tâche" />
-    <input type="url" id="linkInput" placeholder="Lien (optionnel)" />
-    <br>
-    ⏱️ Auto-reset toutes les <input type="number" id="resetInterval" value="86400" /> sec (0 = désactivé)
-    <br>
-    <button onclick="addTask()">Ajouter</button>
-    <button onclick="toggleHideDoneTasks()">Afficher/Masquer les tâches faites</button>
-  </div>
+        <div class="input-group">
+            <input type="text" id="taskInput" placeholder="Nom de la tâche" aria-label="Nom de la tâche" required />
+            <input type="url" id="linkInput" placeholder="Lien (optionnel)" aria-label="Lien de la tâche" />
+        </div>
 
-  <ul id="taskList"></ul>
+        <div class="controls">
+            <div class="reset-control">
+                <span>⏱️ Auto-reset toutes les </span>
+                <input type="number" id="resetInterval" value="86400" min="0" />
+                <span> sec (0 = désactivé)</span>
+            </div>
+            <div class="button-group">
+                <button id="addTaskBtn">Ajouter</button>
+                <button id="toggleHideBtn">Afficher/Masquer les tâches faites</button>
+            </div>
+        </div>
 
-  <script>
-    const taskInput = document.getElementById("taskInput");
-    const linkInput = document.getElementById("linkInput");
-    const taskList = document.getElementById("taskList");
-    const resetIntervalInput = document.getElementById("resetInterval");
+        <ul id="taskList"></ul>
+    </div>
 
-    let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
-    let lastReset = parseInt(localStorage.getItem("lastResetTime") || "0");
-    let hideDoneTasks = false;
+    <script>
+        const taskInput = document.getElementById("taskInput");
+        const linkInput = document.getElementById("linkInput");
+        const addTaskBtn = document.getElementById("addTaskBtn");
+        const taskList = document.getElementById("taskList");
+        const resetIntervalInput = document.getElementById("resetInterval");
+        const toggleHideBtn = document.getElementById("toggleHideBtn");
 
-    // Fonction pour sauvegarder les tâches
-    function saveTasks() {
-      localStorage.setItem("tasks", JSON.stringify(tasks));
-    }
-
-    // Fonction pour sauvegarder le temps de dernier reset
-    function saveLastResetTime() {
-      localStorage.setItem("lastResetTime", Date.now().toString());
-    }
-
-    // Réinitialise toutes les tâches cochées
-    function resetTasksIfNeeded() {
-      const intervalSec = parseInt(resetIntervalInput.value) || 0;
-      if (intervalSec === 0) return; // pas de reset
-
-      const now = Date.now();
-      if (now - lastReset >= intervalSec * 1000) {
-        tasks.forEach(t => t.done = false);
-        saveTasks();
-        saveLastResetTime();
-        lastReset = now;
-      }
-    }
-
-    // Affiche la liste
-    function renderTasks() {
-      taskList.innerHTML = "";
-      tasks.forEach((task, index) => {
-        if (hideDoneTasks && task.done) return;
-
-        const li = document.createElement("li");
-        if (task.done) li.classList.add("completed");
-
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.checked = task.done;
-        checkbox.onchange = () => {
-          tasks[index].done = checkbox.checked;
-          saveTasks();
-          renderTasks();
-        };
-
-        const taskInfo = document.createElement("div");
-        taskInfo.className = "task-info";
-
-        const span = document.createElement("span");
-        span.textContent = task.text;
-        taskInfo.appendChild(span);
-
-        if (task.link) {
-          const link = document.createElement("a");
-          link.href = task.link;
-          link.target = "_blank";
-          link.textContent = "🔗";
-          taskInfo.appendChild(link);
+        let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
+        let hideDoneTasks = false;
+        
+        // Gère la persistance de l'intervalle de réinitialisation
+        let storedResetInterval = localStorage.getItem("resetInterval");
+        if (storedResetInterval) {
+            resetIntervalInput.value = storedResetInterval;
         }
 
-        const actions = document.createElement("div");
-        actions.className = "task-actions";
+        // Sauvegarder les tâches dans le localStorage
+        function saveTasks() {
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        }
+        
+        // Sauvegarder le temps de la dernière réinitialisation
+        function saveLastResetTime() {
+            localStorage.setItem("lastResetTime", Date.now().toString());
+        }
 
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "❌";
-        deleteBtn.onclick = () => {
-          tasks.splice(index, 1);
-          saveTasks();
-          renderTasks();
-        };
+        // Vérifier et réinitialiser les tâches si nécessaire
+        function resetTasksIfNeeded() {
+            const intervalSec = parseInt(resetIntervalInput.value);
+            const lastReset = parseInt(localStorage.getItem("lastResetTime") || "0");
+            const now = Date.now();
 
-        actions.appendChild(deleteBtn);
+            if (intervalSec > 0 && now - lastReset >= intervalSec * 1000) {
+                tasks.forEach(t => t.done = false);
+                saveTasks();
+                saveLastResetTime();
+                renderTasks();
+            }
+        }
 
-        li.appendChild(checkbox);
-        li.appendChild(taskInfo);
-        li.appendChild(actions);
-        taskList.appendChild(li);
-      });
-    }
+        // Rendre la liste des tâches à l'écran
+        function renderTasks() {
+            taskList.innerHTML = "";
+            tasks.forEach((task, index) => {
+                if (hideDoneTasks && task.done) {
+                    return;
+                }
 
-    function addTask() {
-      const text = taskInput.value.trim();
-      const link = linkInput.value.trim();
-      if (text) {
-        tasks.push({ text, link, done: false });
-        taskInput.value = "";
-        linkInput.value = "";
-        saveTasks();
-        renderTasks();
-      }
-    }
+                const li = document.createElement("li");
+                if (task.done) {
+                    li.classList.add("completed");
+                }
 
-    function toggleHideDoneTasks() {
-      hideDoneTasks = !hideDoneTasks;
-      renderTasks();
-    }
+                li.innerHTML = `
+                    <input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleTaskDone(${index})">
+                    <div class="task-content">
+                        <span>${task.text}</span>
+                        ${task.link ? `<a href="${task.link}" target="_blank" title="Ouvrir le lien">🔗</a>` : ''}
+                    </div>
+                    <div class="task-actions">
+                        <button onclick="deleteTask(${index})" title="Supprimer la tâche">❌</button>
+                    </div>
+                `;
+                taskList.appendChild(li);
+            });
+        }
 
-    // Initialisation
-    resetTasksIfNeeded();
-    renderTasks();
-  </script>
+        // Ajouter une nouvelle tâche
+        function addTask() {
+            const text = taskInput.value.trim();
+            const link = linkInput.value.trim();
+            if (text) {
+                tasks.push({ text, link, done: false });
+                taskInput.value = "";
+                linkInput.value = "";
+                saveTasks();
+                renderTasks();
+            }
+        }
+
+        // Marquer une tâche comme terminée ou non
+        function toggleTaskDone(index) {
+            tasks[index].done = !tasks[index].done;
+            saveTasks();
+            renderTasks();
+        }
+
+        // Supprimer une tâche
+        function deleteTask(index) {
+            tasks.splice(index, 1);
+            saveTasks();
+            renderTasks();
+        }
+
+        // Afficher/masquer les tâches terminées
+        function toggleHideDoneTasks() {
+            hideDoneTasks = !hideDoneTasks;
+            renderTasks();
+        }
+
+        // Gérer les événements
+        addTaskBtn.addEventListener("click", addTask);
+        toggleHideBtn.addEventListener("click", toggleHideDoneTasks);
+        resetIntervalInput.addEventListener("change", () => {
+            localStorage.setItem("resetInterval", resetIntervalInput.value);
+        });
+
+        // Permettre l'ajout avec la touche Entrée
+        taskInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                addTask();
+            }
+        });
+
+        // Initialisation de l'application
+        function init() {
+            resetTasksIfNeeded();
+            renderTasks();
+            // Rendre les fonctions globales pour les écouteurs d'événements dans le HTML
+            window.toggleTaskDone = toggleTaskDone;
+            window.deleteTask = deleteTask;
+        }
+
+        init();
+    </script>
 </body>
 </html>
