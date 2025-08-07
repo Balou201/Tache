@@ -2,12 +2,12 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Mes Tâches</title>
+  <title>Mes Tâches avec Liens</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 500px;
-      margin: 50px auto;
+      max-width: 600px;
+      margin: 40px auto;
       padding: 20px;
       border: 1px solid #ccc;
       border-radius: 8px;
@@ -18,8 +18,15 @@
     }
 
     input[type="text"] {
-      width: 70%;
+      width: 60%;
       padding: 8px;
+      margin-top: 5px;
+    }
+
+    input[type="url"] {
+      width: 35%;
+      padding: 8px;
+      margin-top: 5px;
     }
 
     button {
@@ -29,42 +36,55 @@
 
     ul {
       list-style: none;
-      padding-left: 0;
+      padding: 0;
     }
 
     li {
-      margin: 10px 0;
+      margin: 12px 0;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    .completed {
+    .completed span {
       text-decoration: line-through;
       color: gray;
+    }
+
+    .task-info {
+      flex-grow: 1;
+      margin-left: 10px;
+    }
+
+    .task-actions {
+      display: flex;
+      gap: 5px;
+    }
+
+    a {
+      margin-left: 10px;
+      font-size: 0.9em;
     }
   </style>
 </head>
 <body>
   <h1>📝 Mes Tâches</h1>
 
-  <input type="text" id="taskInput" placeholder="Nouvelle tâche..." />
-  <button onclick="addTask()">Ajouter</button>
+  <div>
+    <input type="text" id="taskInput" placeholder="Nom de la tâche" />
+    <input type="url" id="linkInput" placeholder="Lien (optionnel)" />
+    <button onclick="addTask()">Ajouter</button>
+  </div>
 
   <ul id="taskList"></ul>
 
-  <!-- Bouton vers site externe (facultatif) -->
-  <button id="externalBtn" style="display:none;" onclick="window.open(customLink)">🔗 Visiter le site</button>
-
   <script>
     const taskInput = document.getElementById("taskInput");
+    const linkInput = document.getElementById("linkInput");
     const taskList = document.getElementById("taskList");
-    const externalBtn = document.getElementById("externalBtn");
-
-    // 🔧 Change ici le lien si tu veux afficher le bouton
-    const customLink = "https://exemple.com"; // ← Change ce lien si tu veux
-
-    // Afficher le bouton si un lien est défini
-    if (customLink && customLink !== "") {
-      externalBtn.style.display = "block";
-    }
 
     let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
 
@@ -76,6 +96,8 @@
       taskList.innerHTML = "";
       tasks.forEach((task, index) => {
         const li = document.createElement("li");
+        if (task.done) li.classList.add("completed");
+
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.checked = task.done;
@@ -84,21 +106,50 @@
           saveTasks();
           renderTasks();
         };
+
+        const taskInfo = document.createElement("div");
+        taskInfo.className = "task-info";
+
         const span = document.createElement("span");
-        span.textContent = " " + task.text;
-        if (task.done) span.classList.add("completed");
+        span.textContent = task.text;
+
+        taskInfo.appendChild(span);
+
+        if (task.link) {
+          const link = document.createElement("a");
+          link.href = task.link;
+          link.target = "_blank";
+          link.textContent = "🔗";
+          taskInfo.appendChild(link);
+        }
+
+        const actions = document.createElement("div");
+        actions.className = "task-actions";
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "❌";
+        deleteBtn.onclick = () => {
+          tasks.splice(index, 1);
+          saveTasks();
+          renderTasks();
+        };
+
+        actions.appendChild(deleteBtn);
 
         li.appendChild(checkbox);
-        li.appendChild(span);
+        li.appendChild(taskInfo);
+        li.appendChild(actions);
         taskList.appendChild(li);
       });
     }
 
     function addTask() {
       const text = taskInput.value.trim();
+      const link = linkInput.value.trim();
       if (text) {
-        tasks.push({ text, done: false });
+        tasks.push({ text, link, done: false });
         taskInput.value = "";
+        linkInput.value = "";
         saveTasks();
         renderTasks();
       }
