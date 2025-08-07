@@ -55,14 +55,14 @@
             gap: 15px;
             margin-bottom: 20px;
         }
-        .reset-control {
+        .task-timer-input {
             display: flex;
             align-items: center;
             gap: 10px;
             font-size: 0.9em;
             color: #555;
         }
-        .reset-control input[type="number"] {
+        .task-timer-input input[type="number"] {
             width: 80px;
             padding: 8px;
             text-align: center;
@@ -171,18 +171,16 @@
         <div class="input-group">
             <input type="text" id="taskInput" placeholder="Nom de la tâche" aria-label="Nom de la tâche" required />
             <input type="url" id="linkInput" placeholder="Lien (optionnel)" aria-label="Lien de la tâche" />
-        </div>
-
-        <div class="controls">
-            <div class="reset-control">
-                <span>⏱️ Auto-reset toutes les </span>
+            <div class="task-timer-input">
+                <span>⏱️ Auto-reset après </span>
                 <input type="number" id="resetInterval" value="86400" min="0" />
                 <span> sec (0 = désactivé)</span>
             </div>
-            <div class="button-group">
-                <button id="addTaskBtn">Ajouter</button>
-                <button id="toggleHideBtn">Afficher/Masquer les tâches faites</button>
-            </div>
+        </div>
+
+        <div class="button-group">
+            <button id="addTaskBtn">Ajouter la tâche</button>
+            <button id="toggleHideBtn">Afficher/Masquer les tâches faites</button>
         </div>
 
         <ul id="taskList"></ul>
@@ -191,47 +189,35 @@
     <script>
         const taskInput = document.getElementById("taskInput");
         const linkInput = document.getElementById("linkInput");
+        const resetIntervalInput = document.getElementById("resetInterval");
         const addTaskBtn = document.getElementById("addTaskBtn");
         const taskList = document.getElementById("taskList");
-        const resetIntervalInput = document.getElementById("resetInterval");
         const toggleHideBtn = document.getElementById("toggleHideBtn");
 
         let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
         let hideDoneTasks = false;
-        
-        // Gère la persistance de l'intervalle de réinitialisation
-        let storedResetInterval = localStorage.getItem("resetInterval");
-        if (storedResetInterval) {
-            resetIntervalInput.value = storedResetInterval;
-        }
 
-        // Sauvegarder les tâches dans le localStorage
         function saveTasks() {
             localStorage.setItem("tasks", JSON.stringify(tasks));
         }
-        
-        // Sauvegarder le temps de la dernière réinitialisation
-        function saveLastResetTime() {
-            localStorage.setItem("lastResetTime", Date.now().toString());
-        }
 
-        // Vérifier et réinitialiser les tâches si nécessaire
-        function resetTasksIfNeeded() {
-            const intervalSec = parseInt(resetIntervalInput.value);
-            const lastReset = parseInt(localStorage.getItem("lastResetTime") || "0");
-            const now = Date.now();
-
-            if (intervalSec > 0 && now - lastReset >= intervalSec * 1000) {
-                tasks.forEach(t => t.done = false);
-                saveTasks();
-                saveLastResetTime();
-                renderTasks();
-            }
-        }
-
-        // Rendre la liste des tâches à l'écran
         function renderTasks() {
             taskList.innerHTML = "";
+            const now = Date.now();
+            
+            tasks.forEach((task, index) => {
+                // Vérifier si la tâche doit être réinitialisée
+                if (task.done && task.resetInterval > 0) {
+                    if (now - task.completedAt >= task.resetInterval * 1000) {
+                        task.done = false;
+                        task.completedAt = null;
+                    }
+                }
+            });
+
+            // Sauvegarder les changements après la vérification
+            saveTasks();
+
             tasks.forEach((task, index) => {
                 if (hideDoneTasks && task.done) {
                     return;
@@ -256,58 +242,59 @@
             });
         }
 
-        // Ajouter une nouvelle tâche
         function addTask() {
             const text = taskInput.value.trim();
             const link = linkInput.value.trim();
+            const resetInterval = parseInt(resetIntervalInput.value) || 0;
+            
             if (text) {
-                tasks.push({ text, link, done: false });
+                tasks.push({
+                    text,
+                    link,
+                    done: false,
+                    resetInterval,
+                    completedAt: null
+                });
                 taskInput.value = "";
                 linkInput.value = "";
+                resetIntervalInput.value = "86400"; // Réinitialiser le champ après l'ajout
                 saveTasks();
                 renderTasks();
             }
         }
 
-        // Marquer une tâche comme terminée ou non
         function toggleTaskDone(index) {
             tasks[index].done = !tasks[index].done;
+            if (tasks[index].done) {
+                tasks[index].completedAt = Date.now();
+            } else {
+                tasks[index].completedAt = null;
+            }
             saveTasks();
             renderTasks();
         }
 
-        // Supprimer une tâche
         function deleteTask(index) {
             tasks.splice(index, 1);
             saveTasks();
             renderTasks();
         }
 
-        // Afficher/masquer les tâches terminées
         function toggleHideDoneTasks() {
             hideDoneTasks = !hideDoneTasks;
             renderTasks();
         }
 
-        // Gérer les événements
         addTaskBtn.addEventListener("click", addTask);
         toggleHideBtn.addEventListener("click", toggleHideDoneTasks);
-        resetIntervalInput.addEventListener("change", () => {
-            localStorage.setItem("resetInterval", resetIntervalInput.value);
-        });
-
-        // Permettre l'ajout avec la touche Entrée
         taskInput.addEventListener("keypress", (e) => {
             if (e.key === "Enter") {
                 addTask();
             }
         });
 
-        // Initialisation de l'application
         function init() {
-            resetTasksIfNeeded();
             renderTasks();
-            // Rendre les fonctions globales pour les écouteurs d'événements dans le HTML
             window.toggleTaskDone = toggleTaskDone;
             window.deleteTask = deleteTask;
         }
