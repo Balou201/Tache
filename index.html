@@ -1,21 +1,110 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon Agenda de Tâches</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Mes Tâches</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 500px;
+      margin: 50px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    input[type="text"] {
+      width: 70%;
+      padding: 8px;
+    }
+
+    button {
+      padding: 8px 10px;
+      margin-top: 10px;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    li {
+      margin: 10px 0;
+    }
+
+    .completed {
+      text-decoration: line-through;
+      color: gray;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Mes Tâches Quotidiennes</h1>
-        <form id="task-form">
-            <input type="text" id="task-input" placeholder="Ajouter une nouvelle tâche ou un lien (ex: https://...)">
-            <button type="submit">Ajouter</button>
-        </form>
-        <ul id="task-list">
-            </ul>
-    </div>
-    <script src="script.js"></script>
+  <h1>📝 Mes Tâches</h1>
+
+  <input type="text" id="taskInput" placeholder="Nouvelle tâche..." />
+  <button onclick="addTask()">Ajouter</button>
+
+  <ul id="taskList"></ul>
+
+  <!-- Bouton vers site externe (facultatif) -->
+  <button id="externalBtn" style="display:none;" onclick="window.open(customLink)">🔗 Visiter le site</button>
+
+  <script>
+    const taskInput = document.getElementById("taskInput");
+    const taskList = document.getElementById("taskList");
+    const externalBtn = document.getElementById("externalBtn");
+
+    // 🔧 Change ici le lien si tu veux afficher le bouton
+    const customLink = "https://exemple.com"; // ← Change ce lien si tu veux
+
+    // Afficher le bouton si un lien est défini
+    if (customLink && customLink !== "") {
+      externalBtn.style.display = "block";
+    }
+
+    let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
+
+    function saveTasks() {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function renderTasks() {
+      taskList.innerHTML = "";
+      tasks.forEach((task, index) => {
+        const li = document.createElement("li");
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = task.done;
+        checkbox.onchange = () => {
+          tasks[index].done = checkbox.checked;
+          saveTasks();
+          renderTasks();
+        };
+        const span = document.createElement("span");
+        span.textContent = " " + task.text;
+        if (task.done) span.classList.add("completed");
+
+        li.appendChild(checkbox);
+        li.appendChild(span);
+        taskList.appendChild(li);
+      });
+    }
+
+    function addTask() {
+      const text = taskInput.value.trim();
+      if (text) {
+        tasks.push({ text, done: false });
+        taskInput.value = "";
+        saveTasks();
+        renderTasks();
+      }
+    }
+
+    renderTasks();
+  </script>
 </body>
 </html>
