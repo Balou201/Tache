@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mes Tâches</title>
+    <link rel="icon" href="image1.png" type="image/png">
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -206,7 +207,6 @@
             const now = Date.now();
             
             tasks.forEach((task, index) => {
-                // Vérifier si la tâche doit être réinitialisée
                 if (task.done && task.resetInterval > 0) {
                     if (now - task.completedAt >= task.resetInterval * 1000) {
                         task.done = false;
@@ -215,7 +215,6 @@
                 }
             });
 
-            // Sauvegarder les changements après la vérification
             saveTasks();
 
             tasks.forEach((task, index) => {
@@ -257,7 +256,7 @@
                 });
                 taskInput.value = "";
                 linkInput.value = "";
-                resetIntervalInput.value = "86400"; // Réinitialiser le champ après l'ajout
+                resetIntervalInput.value = "86400";
                 saveTasks();
                 renderTasks();
             }
